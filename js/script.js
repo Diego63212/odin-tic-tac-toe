@@ -1,4 +1,4 @@
-const debug = (function Gameboard() {
+function Gameboard() {
     const board = [];
     const rows = 3;
     const columns = 3;
@@ -6,7 +6,7 @@ const debug = (function Gameboard() {
     for (let i = 0; i < rows; i++) {
         board[i] = [];
         for (let j = 0; j < columns; j++) {
-            board[i].push(' ')
+            board[i].push('')
         }
     }
 
@@ -18,17 +18,36 @@ const debug = (function Gameboard() {
 
     const placeToken = function (row, column, player) {
         board[row][column] = player.token
-        return getBoard();
     }
 
-    return { getBoard, getCell, placeToken }
-})();
-
-function Player (name, token) {
-    return { name, token}
+    return { getBoard, getCell, placeToken };
 }
 
-const player1 = Player('One', 'X')
-const player2 = Player('Two', 'O')
+function Player (name, token) {
+    return { name, token };
+}
 
-/* function gameController */
+const player1 = Player('One', 'X');
+const player2 = Player('Two', 'O');
+
+const game = (function GameController () {
+    let currentPlayer = player1;
+    const board = Gameboard();
+    const changePlayer = () => {
+        if (currentPlayer === player1) {
+            currentPlayer = player2;
+        } else {
+            currentPlayer = player1
+        }
+    }
+    const playRound = (row, column) => {
+        if (board.getCell(row, column)) return console.log('Cell already occupied');
+
+        board.placeToken(row, column, currentPlayer)
+        changePlayer()
+        console.log(board.getBoard())
+    }
+    const getPlayer = () => currentPlayer;
+
+    return { playRound, getPlayer };
+})();
