@@ -1,7 +1,27 @@
+button {
+    background: wheat;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 3em;
+}
+
+button:hover {
+    background: rgb(231, 206, 158);
+}
+
+button:active {
+    background: rgb(255, 240, 209);
+}
+
 .board {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
     width: 300px;
     height: 300px;
+    gap: 4px;
+}
+
+.player {
+    color: white;
 }

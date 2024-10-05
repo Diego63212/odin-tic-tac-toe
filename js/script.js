@@ -1,6 +1,6 @@
 function Gameboard () {
     const board = [];
-    const size = 10;
+    const size = 3;
 
     for (let i = 0; i < size; i++) {
         board[i] = [];
@@ -46,7 +46,7 @@ function Cell () {
     return { placeToken, getValue, getToken }
 }
 
-const game = (function GameController () {
+function GameController () {
     const players = [Player('One', 'X', 1), Player('Two', 'O', 20)];
 
     let currentPlayer = players[0];
@@ -71,7 +71,7 @@ const game = (function GameController () {
         console.log(`Player ${currentPlayer.name} turn`);
     }
     
-    const getPlayer = () => currentPlayer;
+    const getPlayer = () => currentPlayer.name;
     console.log(board.printBoard());
     console.log(`Player ${currentPlayer.name} turn`);
 
@@ -93,7 +93,7 @@ const game = (function GameController () {
             for(let j = 0; j < size; j++) {
                 sum += board.getCell(j, i);
             }
-            /* console.log(`Column ${i + 1}: `, sum) */
+            console.log(`Column ${i + 1}: `, sum)
             if (sum === victoryPoints) return console.log(`Player ${currentPlayer.name} won in column ${i + 1}`);
         }
         // Diagonal
@@ -105,16 +105,44 @@ const game = (function GameController () {
         for (let i = 0; i < size; i++) {
             diagonal2 += board.getCell(i, (size - 1) - i);
         }
-        /* console.log(`Diagonal 1: `, diagonal1) */
-        /* console.log(`Diagonal 2: `, diagonal2) */
+        console.log(`Diagonal 1: `, diagonal1)
+        console.log(`Diagonal 2: `, diagonal2)
 
-        if (diagonal1 === victoryPoints) console.log(`Player ${currentPlayer.name} won in diagonal`);
-        if (diagonal2 === victoryPoints) console.log(`Player ${currentPlayer.name} won in diagonal`);
+        if (diagonal1 === victoryPoints) return console.log(`Player ${currentPlayer.name} won in diagonal`);
+        if (diagonal2 === victoryPoints) return console.log(`Player ${currentPlayer.name} won in diagonal`);
     }
     
-    return { playRound, getPlayer, checker };
-})();
-
-function ScreenController () {
-    const updateScreen = () => {}
+    return { playRound, getPlayer, getBoard: board.printBoard };
 }
+
+const controller = (function ScreenController () {
+    const game = GameController();
+    const gameBoardDiv = document.querySelector('.board');
+    const gamePlayerDiv = document.querySelector('.player')
+
+    gameBoardDiv.addEventListener('click', (e) => {
+        const element = e.target;
+        if (!element.dataset.row) return;
+        game.playRound(element.dataset.row, element.dataset.column)
+        updateScreen()
+    })
+
+    const updateScreen = () => {
+        gamePlayerDiv.textContent = game.getPlayer()
+        const fragment = document.createDocumentFragment();
+        const currentBoard = game.getBoard();
+
+        for (let i = 0; i < 3; i++) {
+            for(let j = 0; j < 3; j++) {
+                const cellBtn = document.createElement('button');
+                cellBtn.dataset.row = i;
+                cellBtn.dataset.column = j;
+                cellBtn.textContent = game.getBoard()[i][j]
+
+                fragment.appendChild(cellBtn);
+            }
+        }
+        gameBoardDiv.replaceChildren(fragment);
+    }
+    updateScreen()
+})();
