@@ -1,6 +1,6 @@
 function Gameboard() {
     const board = [];
-    const size = 3;
+    const size = 4;
 
     for (let i = 0; i < size; i++) {
         board[i] = [];
@@ -93,12 +93,19 @@ const game = (function GameController () {
             console.log(`Column ${i + 1}: `, sum)
             if (sum === currentPlayer.id * size) console.log(`Player ${currentPlayer.name} won in column ${i + 1}`);
         }
-        // Diagonal hardcoded
-        let sum1 = sum2 = 0;;
-        sum1 += board.getCell(0,0) + board.getCell(1,1) + board.getCell(2,2)
-        sum2 += board.getCell(2,0) + board.getCell(1,1) + board.getCell(0,2)
-        if (sum1 === currentPlayer.id * size) console.log(`Player ${currentPlayer.name} won in diagonal`);
-        if (sum2 === currentPlayer.id * size) console.log(`Player ${currentPlayer.name} won in diagonal`);
+        // Diagonal
+        let diagonal1 = 0;
+        let diagonal2 = 0;
+        for (let i = 0; i < size; i++) {
+            diagonal1 += board.getCell(i, i)
+        }
+        for (let i = 0; i < size; i++) {
+            diagonal2 += board.getCell(i, (size - 1) - i)
+        }
+        console.log(`Diagonal 1: `, diagonal1)
+        console.log(`Diagonal 2: `, diagonal2)
+        if (diagonal1 === currentPlayer.id * size) console.log(`Player ${currentPlayer.name} won in diagonal`);
+        if (diagonal2 === currentPlayer.id * size) console.log(`Player ${currentPlayer.name} won in diagonal`);
     }
     
     return { playRound, getPlayer, checker };
