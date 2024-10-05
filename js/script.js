@@ -23,31 +23,66 @@ function Gameboard() {
     return { getBoard, getCell, placeToken };
 }
 
-function Player (name, token) {
-    return { name, token };
+function Player (name, token, id) {
+    return { name, token, id };
 }
 
-const player1 = Player('One', 'X');
-const player2 = Player('Two', 'O');
+function Cell () {
+
+}
 
 const game = (function GameController () {
-    let currentPlayer = player1;
+    const players = [Player('One', 'X', 1), Player('Two', 'O', 10)]
+
+    let currentPlayer = players[0];
+    
     const board = Gameboard();
+    
     const changePlayer = () => {
-        if (currentPlayer === player1) {
-            currentPlayer = player2;
+        if (currentPlayer === players[0]) {
+            currentPlayer = players[1];
         } else {
-            currentPlayer = player1
+            currentPlayer = players[0]
         }
     }
+    
     const playRound = (row, column) => {
         if (board.getCell(row, column)) return console.log('Cell already occupied');
 
         board.placeToken(row, column, currentPlayer)
+        checker()
         changePlayer()
         console.log(board.getBoard())
+        console.log(`Player ${currentPlayer.name} turn`)
     }
+    
     const getPlayer = () => currentPlayer;
+    console.log(board.getBoard())
+    console.log(`Player ${currentPlayer.name} turn`)
 
-    return { playRound, getPlayer };
+    const checker = () => {
+        const rows = board.getBoard().length;
+        const columns = board.getBoard()[0].length;
+        for (let i = 0; i < rows; i++) {
+            let sum = 0;
+            for(let j = 0; j < columns; j++) {
+                board.getCell(i, j) === players[0].token ? sum += players[0].id : undefined;
+                board.getCell(i, j) === players[1].token ? sum += players[1].id : undefined;
+            }
+            console.log(`Row ${i + 1}: `, sum)
+            if (sum === currentPlayer.id * columns) console.log(`Player ${currentPlayer.name} won in row ${i + 1}`);
+        }
+
+        for (let i = 0; i < columns; i++) {
+            let sum = 0;
+            for(let j = 0; j < rows; j++) {
+                board.getCell(j, i) === players[0].token ? sum += players[0].id : undefined;
+                board.getCell(j, i) === players[1].token ? sum += players[1].id : undefined;
+            }
+            console.log(`Column ${i + 1}: `, sum)
+            if (sum === currentPlayer.id * columns) console.log(`Player ${currentPlayer.name} won in column ${i + 1}`);
+        }
+    }
+    
+    return { playRound, getPlayer, checker };
 })();
