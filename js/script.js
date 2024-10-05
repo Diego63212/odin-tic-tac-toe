@@ -1,26 +1,31 @@
 function Gameboard() {
     const board = [];
-    const rows = 3;
-    const columns = 3;
+    const size = 3;
 
-    for (let i = 0; i < rows; i++) {
+    for (let i = 0; i < size; i++) {
         board[i] = [];
-        for (let j = 0; j < columns; j++) {
-            board[i].push('')
+        for (let j = 0; j < size; j++) {
+            board[i].push(Cell())
         }
     }
 
-    const getBoard = () => board;
+    const getBoard = (form) => board.map((value) => {
+        return value.map((value) => {
+            return value.getData(form)
+        })
+    });
 
     const getCell = (row, column) => {
-        return board[row][column];
+        return board[row][column].getData('value');
     }
+
+    const getSize = () => size;
 
     const placeToken = function (row, column, player) {
-        board[row][column] = player.token
+        board[row][column].placeToken(player);
     }
 
-    return { getBoard, getCell, placeToken };
+    return { getBoard, getCell, placeToken, getSize };
 }
 
 function Player (name, token, id) {
@@ -28,7 +33,15 @@ function Player (name, token, id) {
 }
 
 function Cell () {
+    let data = { value: 0, token: ''}
 
+    const placeToken = (player) => {
+        data.value = player.id;
+        data.token = player.token;
+    };
+    const getData = (form) => data[form];
+
+    return { placeToken, getData }
 }
 
 const game = (function GameController () {
@@ -52,36 +65,40 @@ const game = (function GameController () {
         board.placeToken(row, column, currentPlayer)
         checker()
         changePlayer()
-        console.log(board.getBoard())
+        console.log(board.getBoard('token'))
         console.log(`Player ${currentPlayer.name} turn`)
     }
     
     const getPlayer = () => currentPlayer;
-    console.log(board.getBoard())
+    console.log(board.getBoard('token'))
     console.log(`Player ${currentPlayer.name} turn`)
 
     const checker = () => {
-        const rows = board.getBoard().length;
-        const columns = board.getBoard()[0].length;
-        for (let i = 0; i < rows; i++) {
+        const size = board.getSize();
+        // Row
+        for (let i = 0; i < size; i++) {
             let sum = 0;
-            for(let j = 0; j < columns; j++) {
-                board.getCell(i, j) === players[0].token ? sum += players[0].id : undefined;
-                board.getCell(i, j) === players[1].token ? sum += players[1].id : undefined;
+            for(let j = 0; j < size; j++) {
+                sum+= board.getCell(i, j);
             }
             console.log(`Row ${i + 1}: `, sum)
-            if (sum === currentPlayer.id * columns) console.log(`Player ${currentPlayer.name} won in row ${i + 1}`);
+            if (sum === currentPlayer.id * size) console.log(`Player ${currentPlayer.name} won in row ${i + 1}`);
         }
-
-        for (let i = 0; i < columns; i++) {
+        // Column
+        for (let i = 0; i < size; i++) {
             let sum = 0;
-            for(let j = 0; j < rows; j++) {
-                board.getCell(j, i) === players[0].token ? sum += players[0].id : undefined;
-                board.getCell(j, i) === players[1].token ? sum += players[1].id : undefined;
+            for(let j = 0; j < size; j++) {
+                sum += board.getCell(j, i);
             }
             console.log(`Column ${i + 1}: `, sum)
-            if (sum === currentPlayer.id * columns) console.log(`Player ${currentPlayer.name} won in column ${i + 1}`);
+            if (sum === currentPlayer.id * size) console.log(`Player ${currentPlayer.name} won in column ${i + 1}`);
         }
+        // Diagonal hardcoded
+        let sum1 = sum2 = 0;;
+        sum1 += board.getCell(0,0) + board.getCell(1,1) + board.getCell(2,2)
+        sum2 += board.getCell(2,0) + board.getCell(1,1) + board.getCell(0,2)
+        if (sum1 === currentPlayer.id * size) console.log(`Player ${currentPlayer.name} won in diagonal`);
+        if (sum2 === currentPlayer.id * size) console.log(`Player ${currentPlayer.name} won in diagonal`);
     }
     
     return { playRound, getPlayer, checker };
