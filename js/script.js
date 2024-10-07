@@ -1,6 +1,6 @@
 function Gameboard () {
     const board = [];
-    const size = 4;
+    const size = 3;
     let filledCells = 0;
 
     const createBoard = () => {
@@ -57,6 +57,7 @@ function GameController () {
     const board = Gameboard();
     const players = [Player('One', 'X', 1), Player('Two', 'O', 20)];
     let isGameFinished = false;
+    let gameStatus = '';
 
     let currentPlayer = players[0];
     
@@ -87,6 +88,7 @@ function GameController () {
     const resetGame = () => {
         isGameFinished = false;
         currentPlayer = players[0];
+        gameStatus = '';
         board.createBoard();
     }
     
@@ -94,14 +96,17 @@ function GameController () {
     console.log(board.printBoard());
     console.log(`Player ${currentPlayer.name} turn`);
 
+    const getStatus = () => gameStatus;
+
     const checker = () => {
         const size = board.getSize();
         const victoryPoints = currentPlayer.id * size;
 
         if (size*size === board.getFilledCells()) {
-            console.log(`Game board is full (Tied)`);
-            isGameFinished = true
-            return true
+            console.log('Game board is full (Tied)');
+            gameStatus = 'Game board is full (Tied)';
+            isGameFinished = true;
+            return true;
         }
         // Row
         for (let i = 0; i < size; i++) {
@@ -112,6 +117,7 @@ function GameController () {
             console.log(`Row ${i + 1}: `, sum)
             if (sum === victoryPoints) {
                 console.log(`Player ${currentPlayer.name} won in row ${i + 1}`);
+                gameStatus = `Player ${currentPlayer.name} won in row ${i + 1}`;
                 isGameFinished = true;
                 return true;
             }
@@ -125,6 +131,7 @@ function GameController () {
             console.log(`Column ${i + 1}: `, sum);
             if (sum === victoryPoints) {
                 console.log(`Player ${currentPlayer.name} won in column ${i + 1}`);
+                gameStatus = `Player ${currentPlayer.name} won in column ${i + 1}`;
                 isGameFinished = true;
                 return true;
             }
@@ -143,20 +150,22 @@ function GameController () {
 
         if (diagonal1 === victoryPoints || diagonal2 === victoryPoints) {
             console.log(`Player ${currentPlayer.name} won in diagonal`);
+            gameStatus = `Player ${currentPlayer.name} won in diagonal`;
             isGameFinished = true;
             return true;
         }
     }
     
-    return { playRound, getPlayer, getBoard: board.printBoard };
+    return { playRound, getPlayer, getBoard: board.printBoard, getStatus };
 }
 
 const controller = (function ScreenController () {
     const game = GameController();
     const gameBoardDiv = document.querySelector('.board');
     const gamePlayerDiv = document.querySelector('.player');
+    const gameStatusDiv = document.querySelector('.status');
     console.log(getComputedStyle(gameBoardDiv).getPropertyValue('--board-size'));
-    gameBoardDiv.style.setProperty('--board-size', game.getBoard().length)
+    gameBoardDiv.style.setProperty('--board-size', game.getBoard().length);
 
     gameBoardDiv.addEventListener('click', (e) => {
         const element = e.target;
@@ -171,6 +180,7 @@ const controller = (function ScreenController () {
         const fragment = document.createDocumentFragment();
         
         gamePlayerDiv.textContent = `Player ${currentPlayer.name} turn (${currentPlayer.token})`;
+        gameStatusDiv.textContent = game.getStatus();
         for (let i = 0; i < game.getBoard().length; i++) {
             for(let j = 0; j < game.getBoard().length; j++) {
                 const cellBtn = document.createElement('button');

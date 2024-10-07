@@ -1,6 +1,7 @@
 html {
     font-family: Roboto, sans-serif, system-ui;
-    --board-size: 3 
+    --board-size: 3;
+
 }
 
 * {
@@ -34,7 +35,9 @@ button:active {
 }
 
 .container {
-    display: block;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .board {
@@ -46,8 +49,10 @@ button:active {
     gap: 0.4em;
     border: 0.5em solid rgb(101, 101, 101);
     border-radius: 6px;
+    margin: 0.5em;
 }
 
-.player {
+.player,
+.status {
     color: white;
 }
