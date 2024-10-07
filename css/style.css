@@ -1,5 +1,6 @@
 html {
     font-family: Roboto, sans-serif, system-ui;
+    --board-size: 3 
 }
 
 * {
@@ -38,8 +39,8 @@ button:active {
 
 .board {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(3, 1fr);
+    grid-template-columns: repeat(var(--board-size), 1fr);
+    grid-template-rows: repeat(var(--board-size), 1fr);
     width: 300px;
     height: 300px;
     gap: 0.4em;

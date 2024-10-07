@@ -1,6 +1,6 @@
 function Gameboard () {
     const board = [];
-    const size = 3;
+    const size = 4;
     let filledCells = 0;
 
     const createBoard = () => {
@@ -155,6 +155,8 @@ const controller = (function ScreenController () {
     const game = GameController();
     const gameBoardDiv = document.querySelector('.board');
     const gamePlayerDiv = document.querySelector('.player');
+    console.log(getComputedStyle(gameBoardDiv).getPropertyValue('--board-size'));
+    gameBoardDiv.style.setProperty('--board-size', game.getBoard().length)
 
     gameBoardDiv.addEventListener('click', (e) => {
         const element = e.target;
@@ -169,8 +171,8 @@ const controller = (function ScreenController () {
         const fragment = document.createDocumentFragment();
         
         gamePlayerDiv.textContent = `Player ${currentPlayer.name} turn (${currentPlayer.token})`;
-        for (let i = 0; i < 3; i++) {
-            for(let j = 0; j < 3; j++) {
+        for (let i = 0; i < game.getBoard().length; i++) {
+            for(let j = 0; j < game.getBoard().length; j++) {
                 const cellBtn = document.createElement('button');
                 cellBtn.dataset.row = i;
                 cellBtn.dataset.column = j;
