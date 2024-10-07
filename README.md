@@ -1,2 +1,2 @@
 # odin-tic-tac-toe
-TOP
+TOP Tic Tac Toe

@@ -19,13 +19,11 @@ function Gameboard () {
         return board[row][column].getValue();
     }
 
-    const getSize = () => size;
-
     const placeToken = function (row, column, player) {
         board[row][column].placeToken(player);
     }
 
-    return { printBoard, getCell, placeToken, getSize };
+    return { printBoard, getCell, placeToken, getSize: board.length };
 }
 
 function Player (name, token, id) {
@@ -47,11 +45,10 @@ function Cell () {
 }
 
 function GameController () {
+    const board = Gameboard();
     const players = [Player('One', 'X', 1), Player('Two', 'O', 20)];
 
     let currentPlayer = players[0];
-    
-    const board = Gameboard();
     
     const changePlayer = () => {
         if (currentPlayer === players[0]) {
@@ -70,13 +67,17 @@ function GameController () {
         changePlayer();
         console.log(`Player ${currentPlayer.name} turn`);
     }
+
+    const resetGame = () => {
+
+    }
     
-    const getPlayer = () => currentPlayer.name;
+    const getPlayer = () => currentPlayer;
     console.log(board.printBoard());
     console.log(`Player ${currentPlayer.name} turn`);
 
     const checker = () => {
-        const size = board.getSize();
+        const size = board.getSize;
         const victoryPoints = currentPlayer.id * size;
         // Row
         for (let i = 0; i < size; i++) {
@@ -128,16 +129,17 @@ const controller = (function ScreenController () {
     })
 
     const updateScreen = () => {
-        gamePlayerDiv.textContent = game.getPlayer()
-        const fragment = document.createDocumentFragment();
+        const currentPlayer = game.getPlayer();
         const currentBoard = game.getBoard();
-
+        const fragment = document.createDocumentFragment();
+        
+        gamePlayerDiv.textContent = `Player ${currentPlayer.name} turn (${currentPlayer.token})`
         for (let i = 0; i < 3; i++) {
             for(let j = 0; j < 3; j++) {
                 const cellBtn = document.createElement('button');
                 cellBtn.dataset.row = i;
                 cellBtn.dataset.column = j;
-                cellBtn.textContent = game.getBoard()[i][j]
+                cellBtn.textContent = currentBoard[i][j]
 
                 fragment.appendChild(cellBtn);
             }
