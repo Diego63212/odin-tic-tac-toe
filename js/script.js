@@ -1,9 +1,8 @@
 function Gameboard () {
     const board = [];
-    const size = 3;
     let filledCells = 0;
 
-    const createBoard = () => {
+    const createBoard = (size = 3) => {
         filledCells = 0;
         for (let i = 0; i < size; i++) {
             board[i] = [];
@@ -28,7 +27,7 @@ function Gameboard () {
         filledCells++;
     }
 
-    const getSize = () => size;
+    const getSize = () => board.length;
 
     const getFilledCells = () => filledCells;
     createBoard();
@@ -56,24 +55,24 @@ function Cell () {
 function GameController () {
     const board = Gameboard();
     const players = [Player('One', 'X', 1), Player('Two', 'O', 20)];
+    let currentPlayer = players[0];
     let isGameFinished = false;
     let gameStatus = '';
 
-    let currentPlayer = players[0];
     
     const changePlayer = () => {
-        if (currentPlayer === players[0]) {
-            currentPlayer = players[1];
-        } else {
-            currentPlayer = players[0];
-        }
+        currentPlayer === players[0] ? currentPlayer = players[1] : currentPlayer = players[0];
     }
     
     const playRound = (row, column) => {
         if (isGameFinished) {
-            return resetGame()
+            resetGame();
+            return true;
         }
-        if (board.getCell(row, column)) return console.log('Cell already occupied');
+        if (board.getCell(row, column)) {
+            gameStatus = 'Cell already occupied';
+            return console.log('Cell already occupied');
+        }
 
         board.placeToken(row, column, currentPlayer);
         console.log(board.printBoard());
@@ -83,6 +82,7 @@ function GameController () {
         }
         changePlayer();
         console.log(`Player ${currentPlayer.name} turn`);
+        return true
     }
 
     const resetGame = () => {
@@ -164,14 +164,14 @@ const controller = (function ScreenController () {
     const gameBoardDiv = document.querySelector('.board');
     const gamePlayerDiv = document.querySelector('.player');
     const gameStatusDiv = document.querySelector('.status');
-    console.log(getComputedStyle(gameBoardDiv).getPropertyValue('--board-size'));
     gameBoardDiv.style.setProperty('--board-size', game.getBoard().length);
 
     gameBoardDiv.addEventListener('click', (e) => {
         const element = e.target;
         if (!element.dataset.row) return;
-        let gameStatus = game.playRound(element.dataset.row, element.dataset.column);
-        updateScreen();
+        let updateRequired = game.playRound(element.dataset.row, element.dataset.column);
+        if (updateRequired) updateScreen();
+        gameStatusDiv.textContent = game.getStatus();
     })
 
     const updateScreen = () => {
@@ -180,12 +180,12 @@ const controller = (function ScreenController () {
         const fragment = document.createDocumentFragment();
         
         gamePlayerDiv.textContent = `Player ${currentPlayer.name} turn (${currentPlayer.token})`;
-        gameStatusDiv.textContent = game.getStatus();
         for (let i = 0; i < game.getBoard().length; i++) {
             for(let j = 0; j < game.getBoard().length; j++) {
                 const cellBtn = document.createElement('button');
                 cellBtn.dataset.row = i;
                 cellBtn.dataset.column = j;
+                cellBtn.classList.toggle('board-button')
                 cellBtn.textContent = currentBoard[i][j];
 
                 fragment.appendChild(cellBtn);

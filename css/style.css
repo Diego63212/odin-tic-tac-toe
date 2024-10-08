@@ -17,13 +17,9 @@ body {
 }
 
 button {
-    background: rgb(243, 240, 240);
     cursor: pointer;
     font-weight: bold;
-    font-size: 3em;
     border: none;
-    border-radius: 1%;
-    transition: all 0.04s;
 }
 
 button:hover {
@@ -50,6 +46,12 @@ button:active {
     border: 0.5em solid rgb(101, 101, 101);
     border-radius: 6px;
     margin: 0.5em;
+}
+
+.board-button {
+    background: rgb(243, 240, 240);
+    font-size: 3em;
+    transition: all 0.04s;
 }
 
 .player,
