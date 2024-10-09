@@ -7,6 +7,7 @@ html {
 }
 
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
@@ -32,23 +33,29 @@ button:active {
     background: rgb(187, 187, 187);
 }
 
+input {
+    font-family: inherit;
+    font-size: 100%;
+}
+
 .container {
     display: flex;
     flex-direction: column;
     align-items: center;
+    min-width: 330px;
 }
 
 .board {
     display: grid;
     grid-template-columns: repeat(var(--board-size), 1fr);
     grid-template-rows: repeat(var(--board-size), 1fr);
-    width: 300px;
-    height: 300px;
+    width: 100%;
     gap: 0.4em;
     border: 0.5em solid rgb(120, 120, 120);
     border-radius: 6px;
     margin: 0.5em;
     background-color: black;
+    aspect-ratio: 1 / 1;
 }
 
 .board-button {
@@ -60,4 +67,22 @@ button:active {
 .player,
 .status {
     color: white;
+}
+
+#start {
+    font-size: 1.1em;
+    padding: 0.6em;
+    margin: 0.5em;
+    border-radius: 5%;
+    background-color: rgb(127, 255, 127);
+}
+
+.player-customization {
+    display: flex;
+    margin-bottom: 0.1em;
+    width: 100%;
+}
+
+.player-customization input[type="text"] {
+    flex: 1;
 }

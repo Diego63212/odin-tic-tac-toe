@@ -9,8 +9,14 @@
 </head>
 <body>
     <div class="container">
-        <input id="player1input" placeholder="PLAYER ONE NAME">
-        <input id="player2input" placeholder="PLAYER TWO NAME">
+        <div class="player-customization">
+            <input type="text" id="player1-input" placeholder="Player 1 name">
+            <input type="color" id="player1color" value="#0000ff">
+        </div>
+        <div class="player-customization">
+            <input type="text" id="player2-input" placeholder="Player 2 name">
+            <input type="color" id="player2color" value="#ff0000">
+        </div>
         <button id="start">START</button>
         <h1 class="player"></h1>
         <div class="board"></div>

@@ -58,10 +58,11 @@ function GameController () {
     let isGameFinished = false;
     let gameStatus = '';
 
-    const startGame = (playerOneName, playerTwoName) => {
-        players[0] = Player(playerOneName, 'X', 1, 'blue')
-        players[1] = Player(playerTwoName, 'O', 20, 'red')
+    const startGame = (playerOneName = 'One', playerTwoName = 'Two', playerOneColor, playerTwoColor) => {
+        players[0] = Player(playerOneName, 'X', Math.random(), playerOneColor)
+        players[1] = Player(playerTwoName, 'O', Math.random(), playerTwoColor)
         currentPlayer = players[0];
+        resetGame();
     }
     
     const changePlayer = () => {
@@ -100,7 +101,11 @@ function GameController () {
     console.log(board.printBoard());
     /* console.log(`Player ${currentPlayer.name} turn`); */
 
-    const getStatus = () => gameStatus;
+    const getStatus = () => {
+        const currentStatus = gameStatus;
+        gameStatus = ''; // Reset status
+        return currentStatus
+    };
     // Check win condition by sum of cell values
     const checkWin = () => {
         const size = board.printBoard().length;
@@ -165,8 +170,10 @@ function GameController () {
     const gameBoardDiv = document.querySelector('.board');
     const gamePlayerDiv = document.querySelector('.player');
     const gameStatusDiv = document.querySelector('.status');
-    const inputPlayerOne = document.querySelector('#player1input')
-    const inputPlayerTwo = document.querySelector('#player2input')
+    const playerOneName = document.querySelector('#player1-input')
+    const playerTwoName = document.querySelector('#player2-input')
+    const playerOneColor = document.querySelector('#player1-color');
+    const playerTwoColor = document.querySelector('#player2-color');
     const startBtn = document.querySelector('#start');
     let previousPlayer = '';
     gameBoardDiv.style.setProperty('--board-size', game.getBoard().length);
@@ -175,16 +182,23 @@ function GameController () {
         if (!e.target.dataset.row) return;
         const element = e.target;
         let skipDraw = game.playRound(element.dataset.row, element.dataset.column);
-        if (!skipDraw) updateScreen();
-        gameStatusDiv.textContent = game.getStatus();
+        updateScreen(skipDraw);
     })
-
+    
     startBtn.addEventListener('click', () => {
-        game.startGame(inputPlayerOne.value, inputPlayerTwo.value)
+        game.startGame(
+            playerOneName.value || undefined,
+            playerTwoName.value || undefined, 
+            playerOneColor.value || undefined,
+            playerTwoColor.value || undefined,
+        )
         updateScreen()
     })
-
-    const updateScreen = () => {
+    
+    const updateScreen = (skipDraw) => {
+        gameStatusDiv.textContent = game.getStatus();
+        if (skipDraw) return;
+        
         const currentPlayer = game.getPlayer();
         const currentBoard = game.getBoard();
         const fragment = document.createDocumentFragment();
@@ -208,5 +222,6 @@ function GameController () {
         previousPlayer = currentPlayer;
         gameBoardDiv.replaceChildren(fragment);
     }
-    /* updateScreen(); */
+    game.startGame();
+    updateScreen();
 })();
