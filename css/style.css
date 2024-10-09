@@ -1,6 +1,8 @@
 html {
     font-family: Roboto, sans-serif, system-ui;
     --board-size: 3;
+    --player-one-color: blue;
+    --player-two-color: red;
 
 }
 
@@ -46,6 +48,7 @@ button:active {
     border: 0.5em solid rgb(120, 120, 120);
     border-radius: 6px;
     margin: 0.5em;
+    background-color: black;
 }
 
 .board-button {

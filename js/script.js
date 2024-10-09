@@ -52,11 +52,17 @@ function Cell () {
 
 function GameController () {
     const board = Gameboard();
-    const players = [Player('One', 'X', 1, 'blue'), Player('Two', 'O', 20, 'red')];
+    /* const players = [Player('One', 'X', 1, 'blue'), Player('Two', 'O', 20, 'red')]; */
+    const players = [];
     let currentPlayer = players[0];
     let isGameFinished = false;
     let gameStatus = '';
 
+    const startGame = (playerOneName, playerTwoName) => {
+        players[0] = Player(playerOneName, 'X', 1, 'blue')
+        players[1] = Player(playerTwoName, 'O', 20, 'red')
+        currentPlayer = players[0];
+    }
     
     const changePlayer = () => {
         currentPlayer === players[0] ? currentPlayer = players[1] : currentPlayer = players[0];
@@ -92,7 +98,7 @@ function GameController () {
     
     const getPlayer = () => currentPlayer;
     console.log(board.printBoard());
-    console.log(`Player ${currentPlayer.name} turn`);
+    /* console.log(`Player ${currentPlayer.name} turn`); */
 
     const getStatus = () => gameStatus;
     // Check win condition by sum of cell values
@@ -151,7 +157,7 @@ function GameController () {
             return;
         }
     }
-    return { playRound, getPlayer, getBoard: board.printBoard, getStatus };
+    return { playRound, getPlayer, getBoard: board.printBoard, getStatus, startGame };
 }
 
 (function ScreenController () {
@@ -159,6 +165,9 @@ function GameController () {
     const gameBoardDiv = document.querySelector('.board');
     const gamePlayerDiv = document.querySelector('.player');
     const gameStatusDiv = document.querySelector('.status');
+    const inputPlayerOne = document.querySelector('#player1input')
+    const inputPlayerTwo = document.querySelector('#player2input')
+    const startBtn = document.querySelector('#start');
     let previousPlayer = '';
     gameBoardDiv.style.setProperty('--board-size', game.getBoard().length);
 
@@ -168,6 +177,11 @@ function GameController () {
         let skipDraw = game.playRound(element.dataset.row, element.dataset.column);
         if (!skipDraw) updateScreen();
         gameStatusDiv.textContent = game.getStatus();
+    })
+
+    startBtn.addEventListener('click', () => {
+        game.startGame(inputPlayerOne.value, inputPlayerTwo.value)
+        updateScreen()
     })
 
     const updateScreen = () => {
@@ -194,5 +208,5 @@ function GameController () {
         previousPlayer = currentPlayer;
         gameBoardDiv.replaceChildren(fragment);
     }
-    updateScreen();
+    /* updateScreen(); */
 })();
