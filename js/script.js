@@ -52,15 +52,14 @@ function Cell () {
 
 function GameController () {
     const board = Gameboard();
-    /* const players = [Player('One', 'X', 1, 'blue'), Player('Two', 'O', 20, 'red')]; */
     const players = [];
-    let currentPlayer = players[0];
+    let currentPlayer;
     let isGameFinished = false;
     let gameStatus = '';
 
-    const startGame = (playerOneName = 'One', playerTwoName = 'Two', playerOneColor, playerTwoColor) => {
-        players[0] = Player(playerOneName, 'X', Math.random(), playerOneColor)
-        players[1] = Player(playerTwoName, 'O', Math.random(), playerTwoColor)
+    const startGame = (playerOneName, playerTwoName, playerOneColor, playerTwoColor) => {
+        players[0] = Player(playerOneName || 'One', 'X', Math.random(), playerOneColor || '#0000ff')
+        players[1] = Player(playerTwoName || 'Two', 'O', Math.random(), playerTwoColor || '#ff0000')
         currentPlayer = players[0];
         resetGame();
     }
@@ -87,7 +86,6 @@ function GameController () {
         if (isGameFinished) return;
 
         changePlayer();
-        return;
     }
 
     const resetGame = () => {
@@ -95,11 +93,11 @@ function GameController () {
         currentPlayer = players[0];
         gameStatus = '';
         board.createBoard();
+        console.log(board.printBoard());
+        console.log(`Player ${currentPlayer.name} turn`);
     }
     
     const getPlayer = () => currentPlayer;
-    console.log(board.printBoard());
-    /* console.log(`Player ${currentPlayer.name} turn`); */
 
     const getStatus = () => {
         const currentStatus = gameStatus;
