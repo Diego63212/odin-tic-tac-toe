@@ -1,8 +1,5 @@
 html {
     font-family: Roboto, sans-serif, system-ui;
-    --board-size: 3;
-    --player-one-color: blue;
-    --player-two-color: red;
 
 }
 
@@ -26,7 +23,7 @@ button {
 }
 
 button:hover {
-    background: rgb(245, 241, 192);
+    background: rgb(255, 236, 154);
 }
 
 button:active {
@@ -46,6 +43,9 @@ input {
 }
 
 .board {
+    --board-size: 3;
+    --player-one-color: blue;
+    --player-two-color: red;
     display: grid;
     grid-template-columns: repeat(var(--board-size), 1fr);
     grid-template-rows: repeat(var(--board-size), 1fr);
@@ -64,8 +64,8 @@ input {
     transition: all 0.04s;
 }
 
-.player,
-.status {
+.player-turn,
+.game-status {
     color: white;
     font-size: 1.5em;
 }

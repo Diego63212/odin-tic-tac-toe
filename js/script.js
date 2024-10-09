@@ -1,39 +1,44 @@
 function Gameboard () {
     const board = [];
     let filledCells = 0;
+    let savedSize = 3;
 
-    const createBoard = (size = 3) => {
+    const createBoard = (size = savedSize) => {
         filledCells = 0;
+        savedSize = size;
         for (let i = 0; i < size; i++) {
             board[i] = [];
             for (let j = 0; j < size; j++) {
                 board[i].push(Cell());
             }
         }
+        while (board.length > size) {
+            board.pop();
+        }
     }
-
+    // Return board array with token instead of player id
     const printBoard = () => board.map((value) => {
         return value.map((value) => {
             return value.getToken();
         });
     });
-
+    // Get the player id inside of a cell
     const getCell = (row, column) => {
         return board[row][column].getValue();
     }
-
+    // Place and register action
     const placeToken = (row, column, player) => {
         board[row][column].placeToken(player);
         filledCells++;
     }
-
+    // Easy method to know how many cells are already occupied
     const getFilledCells = () => filledCells;
     createBoard();
     return { printBoard, getCell, placeToken, createBoard, getFilledCells };
 }
 
-function Player (name, token, id, color) {
-    return { name, token, id, color };
+function Player (name, token, color) {
+    return { name, token, id: Math.random(), color };
 }
 
 function Cell () {
@@ -56,16 +61,17 @@ function GameController () {
     let currentPlayer;
     let isGameFinished = false;
     let gameStatus = '';
-
-    const startGame = (playerOneName, playerTwoName, playerOneColor, playerTwoColor) => {
-        players[0] = Player(playerOneName || 'One', 'X', Math.random(), playerOneColor || '#0000ff')
-        players[1] = Player(playerTwoName || 'Two', 'O', Math.random(), playerTwoColor || '#ff0000')
+    // Start the game with two player with fallback support
+    const startGame = (playerOneName, playerTwoName, playerOneColor, playerTwoColor, boardSize) => {
+        players[0] = Player(playerOneName || 'One', 'X', playerOneColor || '#0000ff');
+        players[1] = Player(playerTwoName || 'Two', 'O', playerTwoColor || '#ff0000');
         currentPlayer = players[0];
-        resetGame();
+        resetGame(boardSize);
     }
     
     const changePlayer = () => {
         currentPlayer === players[0] ? currentPlayer = players[1] : currentPlayer = players[0];
+        console.log(board.printBoard());
         console.log(`Player ${currentPlayer.name} turn`);
     }
     
@@ -81,27 +87,26 @@ function GameController () {
         }
 
         board.placeToken(row, column, currentPlayer);
-        console.log(board.printBoard());
         checkWin();
         if (isGameFinished) return;
-
+        
         changePlayer();
     }
-
-    const resetGame = () => {
+    // Reset board, game and player status
+    const resetGame = (boardSize) => {
         isGameFinished = false;
         currentPlayer = players[0];
         gameStatus = '';
-        board.createBoard();
+        board.createBoard(boardSize);
         console.log(board.printBoard());
         console.log(`Player ${currentPlayer.name} turn`);
     }
     
     const getPlayer = () => currentPlayer;
-
+    // Return game status and clear it
     const getStatus = () => {
         const currentStatus = gameStatus;
-        gameStatus = ''; // Reset status
+        gameStatus = '';
         return currentStatus
     };
     // Check win condition by sum of cell values
@@ -156,6 +161,7 @@ function GameController () {
         if (size * size === board.getFilledCells()) {
             console.log('Game board is full (Tied)');
             gameStatus = 'Game board is full (Tied)';
+            currentPlayer.color = 'black';
             isGameFinished = true;
             return;
         }
@@ -166,60 +172,53 @@ function GameController () {
 (function ScreenController () {
     const game = GameController();
     const gameBoardDiv = document.querySelector('.board');
-    const gamePlayerDiv = document.querySelector('.player');
-    const gameStatusDiv = document.querySelector('.status');
+    const gamePlayerDiv = document.querySelector('.player-turn');
+    const gameStatusDiv = document.querySelector('.game-status');
     const playerOneName = document.querySelector('#player1-input')
     const playerTwoName = document.querySelector('#player2-input')
     const playerOneColor = document.querySelector('#player1-color');
     const playerTwoColor = document.querySelector('#player2-color');
     const startBtn = document.querySelector('#start');
     let previousPlayer = '';
-    gameBoardDiv.style.setProperty('--board-size', game.getBoard().length);
-
+    
     gameBoardDiv.addEventListener('click', (e) => {
         if (!e.target.dataset.row) return;
         const element = e.target;
         let skipDraw = game.playRound(element.dataset.row, element.dataset.column);
         updateScreen(skipDraw);
     })
-    
+    // Start a new game with custom name or revert to default
     startBtn.addEventListener('click', () => {
-        game.startGame(
-            playerOneName.value || undefined,
-            playerTwoName.value || undefined, 
-            playerOneColor.value || undefined,
-            playerTwoColor.value || undefined,
-        )
-        updateScreen()
+        const boardSize = prompt('Board size?');
+        game.startGame(playerOneName.value, playerTwoName.value, playerOneColor.value, playerTwoColor.value, +boardSize);
+        updateScreen();
     })
-    
+    // Handle the entire user interface creating and updating
     const updateScreen = (skipDraw) => {
         gameStatusDiv.textContent = game.getStatus();
-        if (skipDraw) return;
+        if (skipDraw) return; // Skip the recreating of the board html when unneeded
         
         const currentPlayer = game.getPlayer();
         const currentBoard = game.getBoard();
         const fragment = document.createDocumentFragment();
         
+        gameBoardDiv.style.setProperty('--board-size', game.getBoard().length);
         gamePlayerDiv.textContent = `Player ${currentPlayer.name} turn (${currentPlayer.token})`;
         for (let i = 0; i < currentBoard.length; i++) {
             for(let j = 0; j < currentBoard.length; j++) {
                 const cellBtn = document.createElement('button');
+                cellBtn.textContent = currentBoard[i][j];
                 cellBtn.dataset.row = i;
                 cellBtn.dataset.column = j;
                 cellBtn.classList.toggle('board-button')
-                cellBtn.textContent = currentBoard[i][j];
-                if (cellBtn.textContent === currentPlayer.token) {
-                    cellBtn.style.color = currentPlayer.color;
-                } else if (currentPlayer != previousPlayer) {
-                    cellBtn.style.color = previousPlayer.color
-                }
+                if (currentPlayer != previousPlayer) cellBtn.style.color = previousPlayer.color;
+                if (cellBtn.textContent === currentPlayer.token) cellBtn.style.color = currentPlayer.color;
                 fragment.appendChild(cellBtn);
             }
         }
-        previousPlayer = currentPlayer;
+        previousPlayer = currentPlayer; // Saves old player to correctly represent color
         gameBoardDiv.replaceChildren(fragment);
     }
-    game.startGame();
-    updateScreen();
+    game.startGame(); // Start a game with default player
+    updateScreen(); // Update screen on page load
 })();
