@@ -22,20 +22,18 @@ function Gameboard () {
         return board[row][column].getValue();
     }
 
-    const placeToken = function (row, column, player) {
+    const placeToken = (row, column, player) => {
         board[row][column].placeToken(player);
         filledCells++;
     }
 
-    const getSize = () => board.length;
-
     const getFilledCells = () => filledCells;
     createBoard();
-    return { printBoard, getCell, placeToken, createBoard, getSize, getFilledCells };
+    return { printBoard, getCell, placeToken, createBoard, getFilledCells };
 }
 
-function Player (name, token, id) {
-    return { name, token, id };
+function Player (name, token, id, color) {
+    return { name, token, id, color };
 }
 
 function Cell () {
@@ -54,7 +52,7 @@ function Cell () {
 
 function GameController () {
     const board = Gameboard();
-    const players = [Player('One', 'X', 1), Player('Two', 'O', 20)];
+    const players = [Player('One', 'X', 1, 'blue'), Player('Two', 'O', 20, 'red')];
     let currentPlayer = players[0];
     let isGameFinished = false;
     let gameStatus = '';
@@ -62,27 +60,27 @@ function GameController () {
     
     const changePlayer = () => {
         currentPlayer === players[0] ? currentPlayer = players[1] : currentPlayer = players[0];
+        console.log(`Player ${currentPlayer.name} turn`);
     }
     
     const playRound = (row, column) => {
         if (isGameFinished) {
             resetGame();
-            return true;
+            return;
         }
         if (board.getCell(row, column)) {
+            console.log('Cell already occupied');
             gameStatus = 'Cell already occupied';
-            return console.log('Cell already occupied');
+            return true; 
         }
 
         board.placeToken(row, column, currentPlayer);
         console.log(board.printBoard());
-        checker();
-        if (isGameFinished) {
-            return true;
-        }
+        checkWin();
+        if (isGameFinished) return;
+
         changePlayer();
-        console.log(`Player ${currentPlayer.name} turn`);
-        return true
+        return;
     }
 
     const resetGame = () => {
@@ -97,11 +95,10 @@ function GameController () {
     console.log(`Player ${currentPlayer.name} turn`);
 
     const getStatus = () => gameStatus;
-
-    const checker = () => {
-        const size = board.getSize();
+    // Check win condition by sum of cell values
+    const checkWin = () => {
+        const size = board.printBoard().length;
         const victoryPoints = currentPlayer.id * size;
-
         // Row
         for (let i = 0; i < size; i++) {
             let sum = 0;
@@ -113,7 +110,7 @@ function GameController () {
                 console.log(`Player ${currentPlayer.name} won in row ${i + 1}`);
                 gameStatus = `Player ${currentPlayer.name} won in row ${i + 1}`;
                 isGameFinished = true;
-                return true;
+                return;
             }
         }
         // Column
@@ -127,12 +124,11 @@ function GameController () {
                 console.log(`Player ${currentPlayer.name} won in column ${i + 1}`);
                 gameStatus = `Player ${currentPlayer.name} won in column ${i + 1}`;
                 isGameFinished = true;
-                return true;
+                return;
             }
         }
         // Diagonal
-        let diagonal1 = 0;
-        let diagonal2 = 0;
+        let diagonal1 = diagonal2 = 0;
         for (let i = 0; i < size; i++) {
             diagonal1 += board.getCell(i, i)
         }
@@ -141,36 +137,36 @@ function GameController () {
         }
         console.log(`Diagonal 1: `, diagonal1);
         console.log(`Diagonal 2: `, diagonal2);
-        
         if (diagonal1 === victoryPoints || diagonal2 === victoryPoints) {
             console.log(`Player ${currentPlayer.name} won in diagonal`);
             gameStatus = `Player ${currentPlayer.name} won in diagonal`;
             isGameFinished = true;
-            return true;
+            return;
         }
         // Tie
-        if (size*size === board.getFilledCells()) {
+        if (size * size === board.getFilledCells()) {
             console.log('Game board is full (Tied)');
             gameStatus = 'Game board is full (Tied)';
             isGameFinished = true;
-            return true;
+            return;
         }
     }
     return { playRound, getPlayer, getBoard: board.printBoard, getStatus };
 }
 
-const controller = (function ScreenController () {
+(function ScreenController () {
     const game = GameController();
     const gameBoardDiv = document.querySelector('.board');
     const gamePlayerDiv = document.querySelector('.player');
     const gameStatusDiv = document.querySelector('.status');
+    let previousPlayer = '';
     gameBoardDiv.style.setProperty('--board-size', game.getBoard().length);
 
     gameBoardDiv.addEventListener('click', (e) => {
+        if (!e.target.dataset.row) return;
         const element = e.target;
-        if (!element.dataset.row) return;
-        let updateRequired = game.playRound(element.dataset.row, element.dataset.column);
-        if (updateRequired) updateScreen();
+        let skipDraw = game.playRound(element.dataset.row, element.dataset.column);
+        if (!skipDraw) updateScreen();
         gameStatusDiv.textContent = game.getStatus();
     })
 
@@ -180,17 +176,22 @@ const controller = (function ScreenController () {
         const fragment = document.createDocumentFragment();
         
         gamePlayerDiv.textContent = `Player ${currentPlayer.name} turn (${currentPlayer.token})`;
-        for (let i = 0; i < game.getBoard().length; i++) {
-            for(let j = 0; j < game.getBoard().length; j++) {
+        for (let i = 0; i < currentBoard.length; i++) {
+            for(let j = 0; j < currentBoard.length; j++) {
                 const cellBtn = document.createElement('button');
                 cellBtn.dataset.row = i;
                 cellBtn.dataset.column = j;
                 cellBtn.classList.toggle('board-button')
                 cellBtn.textContent = currentBoard[i][j];
-
+                if (cellBtn.textContent === currentPlayer.token) {
+                    cellBtn.style.color = currentPlayer.color;
+                } else if (currentPlayer != previousPlayer) {
+                    cellBtn.style.color = previousPlayer.color
+                }
                 fragment.appendChild(cellBtn);
             }
         }
+        previousPlayer = currentPlayer;
         gameBoardDiv.replaceChildren(fragment);
     }
     updateScreen();

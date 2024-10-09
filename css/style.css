@@ -43,7 +43,7 @@ button:active {
     width: 300px;
     height: 300px;
     gap: 0.4em;
-    border: 0.5em solid rgb(101, 101, 101);
+    border: 0.5em solid rgb(120, 120, 120);
     border-radius: 6px;
     margin: 0.5em;
 }
