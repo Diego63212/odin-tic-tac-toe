@@ -1,11 +1,11 @@
 function Gameboard () {
     const board = [];
     let filledCells = 0;
-    let savedSize = 3;
+    let savedSize;
 
     const createBoard = (size = savedSize) => {
+        size ? savedSize = size : size = 3;
         filledCells = 0;
-        savedSize = size;
         for (let i = 0; i < size; i++) {
             board[i] = [];
             for (let j = 0; j < size; j++) {
