@@ -102,12 +102,6 @@ function GameController () {
         const size = board.getSize();
         const victoryPoints = currentPlayer.id * size;
 
-        if (size*size === board.getFilledCells()) {
-            console.log('Game board is full (Tied)');
-            gameStatus = 'Game board is full (Tied)';
-            isGameFinished = true;
-            return true;
-        }
         // Row
         for (let i = 0; i < size; i++) {
             let sum = 0;
@@ -147,15 +141,21 @@ function GameController () {
         }
         console.log(`Diagonal 1: `, diagonal1);
         console.log(`Diagonal 2: `, diagonal2);
-
+        
         if (diagonal1 === victoryPoints || diagonal2 === victoryPoints) {
             console.log(`Player ${currentPlayer.name} won in diagonal`);
             gameStatus = `Player ${currentPlayer.name} won in diagonal`;
             isGameFinished = true;
             return true;
         }
+        // Tie
+        if (size*size === board.getFilledCells()) {
+            console.log('Game board is full (Tied)');
+            gameStatus = 'Game board is full (Tied)';
+            isGameFinished = true;
+            return true;
+        }
     }
-    
     return { playRound, getPlayer, getBoard: board.printBoard, getStatus };
 }
 
