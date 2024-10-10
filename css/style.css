@@ -1,6 +1,5 @@
 html {
-    font-family: Roboto, sans-serif, system-ui;
-
+    font-family: "Roboto", sans-serif, system-ui;
 }
 
 * {
@@ -22,14 +21,6 @@ button {
     border: none;
 }
 
-button:hover {
-    background: rgb(255, 236, 154);
-}
-
-button:active {
-    background: rgb(187, 187, 187);
-}
-
 input {
     font-family: inherit;
     font-size: 100%;
@@ -39,18 +30,16 @@ input {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 330px;
+    min-width: 340px;
 }
 
 .board {
     --board-size: 3;
-    --player-one-color: blue;
-    --player-two-color: red;
     display: grid;
     grid-template-columns: repeat(var(--board-size), 1fr);
     grid-template-rows: repeat(var(--board-size), 1fr);
     width: 100%;
-    gap: 0.4em;
+    gap: calc(1.3em / var(--board-size));
     border: 0.5em solid rgb(120, 120, 120);
     border-radius: 6px;
     margin: 0.5em;
@@ -58,16 +47,29 @@ input {
     aspect-ratio: 1 / 1;
 }
 
-.board-button {
-    background: rgb(243, 240, 240);
-    font-size: 3em;
+.board button {
+    background-color: rgb(243, 240, 240);
+    font-size: calc(15em / var(--board-size));
     transition: all 0.04s;
+    
+}
+
+.board button:hover {
+    background-color: rgb(255, 236, 154);
+}
+
+.board button:active {
+    background-color: rgb(187, 187, 187);
 }
 
 .player-turn,
 .game-status {
     color: white;
     font-size: 1.5em;
+    max-width: 330px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 #start {

@@ -85,11 +85,9 @@ function GameController () {
             gameStatus = 'Cell already occupied';
             return true; 
         }
-
         board.placeToken(row, column, currentPlayer);
         checkWin();
         if (isGameFinished) return;
-        
         changePlayer();
     }
     // Reset board, game and player status
@@ -102,7 +100,8 @@ function GameController () {
         console.log(`Player ${currentPlayer.name} turn`);
     }
     
-    const getPlayer = () => currentPlayer;
+    const getPlayers = () => players;
+    const getActivePlayer = () => currentPlayer;
     // Return game status and clear it
     const getStatus = () => {
         const currentStatus = gameStatus;
@@ -124,7 +123,6 @@ function GameController () {
                 console.log(`Player ${currentPlayer.name} won in row ${i + 1}`);
                 gameStatus = `Player ${currentPlayer.name} won in row ${i + 1}`;
                 isGameFinished = true;
-                return;
             }
         }
         // Column
@@ -138,7 +136,6 @@ function GameController () {
                 console.log(`Player ${currentPlayer.name} won in column ${i + 1}`);
                 gameStatus = `Player ${currentPlayer.name} won in column ${i + 1}`;
                 isGameFinished = true;
-                return;
             }
         }
         // Diagonal
@@ -155,18 +152,15 @@ function GameController () {
             console.log(`Player ${currentPlayer.name} won in diagonal`);
             gameStatus = `Player ${currentPlayer.name} won in diagonal`;
             isGameFinished = true;
-            return;
         }
         // Tie
-        if (size * size === board.getFilledCells()) {
+        if (size * size === board.getFilledCells() && !isGameFinished) {
             console.log('Game board is full (Tied)');
             gameStatus = 'Game board is full (Tied)';
-            currentPlayer.color = 'black';
             isGameFinished = true;
-            return;
         }
     }
-    return { playRound, getPlayer, getBoard: board.printBoard, getStatus, startGame };
+    return { playRound, getPlayers, getActivePlayer, getBoard: board.printBoard, getStatus, startGame };
 }
 
 (function ScreenController () {
@@ -179,7 +173,6 @@ function GameController () {
     const playerOneColor = document.querySelector('#player1-color');
     const playerTwoColor = document.querySelector('#player2-color');
     const startBtn = document.querySelector('#start');
-    let previousPlayer = '';
     
     gameBoardDiv.addEventListener('click', (e) => {
         if (!e.target.dataset.row) return;
@@ -190,7 +183,8 @@ function GameController () {
     // Start a new game with custom name or revert to default
     startBtn.addEventListener('click', () => {
         const boardSize = prompt('Board size?');
-        game.startGame(playerOneName.value, playerTwoName.value, playerOneColor.value, playerTwoColor.value, +boardSize);
+        game.startGame(playerOneName.value, playerTwoName.value, playerOneColor.value, playerTwoColor.value, boardSize);
+        gameBoardDiv.style.setProperty('--board-size', game.getBoard().length);
         updateScreen();
     })
     // Handle the entire user interface creating and updating
@@ -198,11 +192,11 @@ function GameController () {
         gameStatusDiv.textContent = game.getStatus();
         if (skipDraw) return; // Skip the recreating of the board html when unneeded
         
-        const currentPlayer = game.getPlayer();
+        const players = game.getPlayers();
+        const currentPlayer = game.getActivePlayer();
         const currentBoard = game.getBoard();
         const fragment = document.createDocumentFragment();
         
-        gameBoardDiv.style.setProperty('--board-size', game.getBoard().length);
         gamePlayerDiv.textContent = `Player ${currentPlayer.name} turn (${currentPlayer.token})`;
         for (let i = 0; i < currentBoard.length; i++) {
             for(let j = 0; j < currentBoard.length; j++) {
@@ -210,13 +204,14 @@ function GameController () {
                 cellBtn.textContent = currentBoard[i][j];
                 cellBtn.dataset.row = i;
                 cellBtn.dataset.column = j;
-                cellBtn.classList.toggle('board-button')
-                if (currentPlayer != previousPlayer) cellBtn.style.color = previousPlayer.color;
-                if (cellBtn.textContent === currentPlayer.token) cellBtn.style.color = currentPlayer.color;
+                if (currentBoard[i][j] === players[0].token) {
+                    cellBtn.style.color = players[0].color;
+                } else {
+                    cellBtn.style.color = players[1].color;
+                }
                 fragment.appendChild(cellBtn);
             }
         }
-        previousPlayer = currentPlayer; // Saves old player to correctly represent color
         gameBoardDiv.replaceChildren(fragment);
     }
     game.startGame(); // Start a game with default player
